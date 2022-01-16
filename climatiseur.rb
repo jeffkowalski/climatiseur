@@ -79,6 +79,26 @@ class Climatiseur < Thor
     @logger.info "thermostat set to '#{thermostat}'"
 
     #
+    # determine indoor/outdoor temperatures
+    #
+
+    result = wxdata.query 'select last(value) from temperature_indoor'
+    if Time.now - Time.parse(result[0]['values'][0]['time']) > 5000
+      @logger.error 'indoor temperature measurement is stale'
+      return
+    end
+    indoor_temperature = result[0]['values'][0]['last']
+    @logger.info "indoor temperature is #{indoor_temperature}"
+
+    result = wxdata.query 'select last(value) from temperature_outdoor'
+    if Time.now - Time.parse(result[0]['values'][0]['time']) > 5000
+      @logger.error 'outdoor temperature measurement is stale'
+      return
+    end
+    outdoor_temperature = result[0]['values'][0]['last']
+    @logger.info "outdoor temperature is #{outdoor_temperature}"
+
+    #
     # determine state of portals
     #
 
@@ -98,26 +118,6 @@ class Climatiseur < Thor
     end
     @logger.info "closed (#{closed.length}) #{closed}"
     @logger.info "open (#{open.length}) #{open} "
-
-    #
-    # determine indoor/outdoor temperatures
-    #
-
-    result = wxdata.query 'select last(value) from temperature_indoor'
-    if Time.now - Time.parse(result[0]['values'][0]['time']) > 5000
-      @logger.error 'indoor temperature measurement is stale'
-      return
-    end
-    indoor_temperature = result[0]['values'][0]['last']
-    @logger.info "indoor temperature is #{indoor_temperature}"
-
-    result = wxdata.query 'select last(value) from temperature_outdoor'
-    if Time.now - Time.parse(result[0]['values'][0]['time']) > 5000
-      @logger.error 'outdoor temperature measurement is stale'
-      return
-    end
-    outdoor_temperature = result[0]['values'][0]['last']
-    @logger.info "outdoor temperature is #{outdoor_temperature}"
 
     # send alert if indoors and outdoors are incorrectly balanced
     #  - we're heating and it's hotter outside and portals are closed
@@ -152,6 +152,8 @@ class Climatiseur < Thor
           end
         end
       end
+    else
+      @logger.info "all's well!"
     end
   rescue StandardError => e
     @logger.error e
