@@ -5,6 +5,8 @@ require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
+THRESHOLD = 2
+
 class Climatiseur < ScannerBotBase
   no_commands do
     def main
@@ -75,7 +77,7 @@ class Climatiseur < ScannerBotBase
 
         if Time.now - Time.parse(sensor['values'][0]['time']) > 5000
           @logger.error "'#{description}' sensor measurement is stale"
-          return
+          next
         end
         closed.push description if sensor['values'][0]['last'].zero?
         open.push description if sensor['values'][0]['last'] == 1
@@ -90,16 +92,16 @@ class Climatiseur < ScannerBotBase
       #  - we're cooling and it's colder outside and portals are closed
       subject = nil
       message = nil
-      if thermostat == 'heat' && (outdoor_temperature > indoor_temperature) && open.length.zero?
+      if thermostat == 'heat' && (outdoor_temperature - indoor_temperature > THRESHOLD) && open.length.zero?
         subject = "It's warmer outside, please open some more doors and windows"
         message = (['You might open one of these:'] + closed).join("\n")
-      elsif thermostat == 'heat' && (outdoor_temperature < indoor_temperature) && !open.length.zero?
+      elsif thermostat == 'heat' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && !open.length.zero?
         subject = "Close the doors!  It's cold outside!"
         message = "Why would you have the #{open.join(' & ')} open?"
-      elsif thermostat == 'cool' && (outdoor_temperature > indoor_temperature) && !open.length.zero?
+      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature > THRESHOLD) && !open.length.zero?
         subject = "Close the doors!  It's hot outside!"
         message = "Why would you have the #{open.join(' & ')} open?"
-      elsif thermostat == 'cool' && (outdoor_temperature < indoor_temperature) && open.length.zero
+      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && open.length.zero?
         subject = "It's cooler outside, please open some more doors and windows"
         message = (['You might open one of these:'] + closed).join("\n")
       end
