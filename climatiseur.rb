@@ -39,7 +39,7 @@ class Climatiseur < ScannerBotBase
 
       thermostat = family_room
       if thermostat != living_room && !(family_room == 'eco' || living_room == 'eco')
-        @logger.error "'Living Room Thermostat' measurement is stale"
+        @logger.error "'Family Room Thermostat (#{family_room})' and 'Living Room Thermostat (#{living_room})' don't agree"
         return
       end
       @logger.info "thermostat set to '#{thermostat}'"
