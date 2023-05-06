@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
@@ -92,16 +91,16 @@ class Climatiseur < ScannerBotBase
       #  - we're cooling and it's colder outside and portals are closed
       subject = nil
       message = nil
-      if thermostat == 'heat' && (outdoor_temperature - indoor_temperature > THRESHOLD) && open.length.zero?
+      if thermostat == 'heat' && (outdoor_temperature - indoor_temperature > THRESHOLD) && open.empty?
         subject = "It's warmer outside, please open some more doors and windows"
         message = (['You might open one of these:'] + closed).join("\n")
-      elsif thermostat == 'heat' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && !open.length.zero?
+      elsif thermostat == 'heat' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && !open.empty?
         subject = "Close the doors!  It's cold outside!"
         message = "Why would you have the #{open.join(' & ')} open?"
-      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature > THRESHOLD) && !open.length.zero?
+      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature > THRESHOLD) && !open.empty?
         subject = "Close the doors!  It's hot outside!"
         message = "Why would you have the #{open.join(' & ')} open?"
-      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && open.length.zero?
+      elsif thermostat == 'cool' && (outdoor_temperature - indoor_temperature < -THRESHOLD) && open.empty?
         subject = "It's cooler outside, please open some more doors and windows"
         message = (['You might open one of these:'] + closed).join("\n")
       end
