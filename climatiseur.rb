@@ -37,7 +37,7 @@ class Climatiseur < ScannerBotBase
       living_room = result[0]['values'][0]['last']
 
       thermostat = family_room
-      if thermostat != living_room && !(family_room == 'eco' || living_room == 'eco')
+      if thermostat != living_room && !(%w[eco off].include?(family_room) || %w[eco off].include?(living_room))
         @logger.error "'Family Room Thermostat (#{family_room})' and 'Living Room Thermostat (#{living_room})' don't agree"
         return
       end
