@@ -15,9 +15,9 @@ class Climatiseur < ScannerBotBase
         delivery_method :smtp, credentials[:mail_delivery_defaults]
       end
 
-      nest = InfluxDB::Client.new(database: 'nest', host: 'cube.local', precison: 'ms')
-      wxdata = InfluxDB::Client.new(database: 'wxdata', host: 'cube.local', precison: 'ms')
-      frontpoint = InfluxDB::Client.new(database: 'frontpoint', host: 'cube.local', precison: 'ms')
+      nest       = new_influxdb_client('nest')
+      wxdata     = new_influxdb_client('wxdata')
+      frontpoint = new_influxdb_client('frontpoint')
 
       #
       # determine heating/cooling (thermostat) status
