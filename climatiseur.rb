@@ -75,7 +75,7 @@ class Climatiseur < ScannerBotBase
         next unless credentials[:portals].include? description
 
         if Time.now - Time.parse(sensor['values'][0]['time']) > 5000
-          @logger.error "'#{description}' sensor measurement is stale"
+          @logger.warn "'#{description}' sensor measurement is stale"
           next
         end
         closed.push description if sensor['values'][0]['last'].zero?
